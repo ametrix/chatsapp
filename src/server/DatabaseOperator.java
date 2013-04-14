@@ -9,7 +9,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -60,6 +62,7 @@ public class DatabaseOperator implements DBOperator {
         } 
         catch (Exception e) {
             System.out.println("Exception ocurred!");
+            e.printStackTrace();
             return false;
         }
     }
@@ -82,7 +85,7 @@ public class DatabaseOperator implements DBOperator {
             if (!resultFromUsers.first())
                 return null;
             
-            long id = resultFromUsers.getInt(1);
+            long id = resultFromUsers.getLong(1);
             
             friendMap.put(id, userName);
 
@@ -111,6 +114,7 @@ public class DatabaseOperator implements DBOperator {
             
         } catch (Exception e) {
             System.out.println("Exception ocurred!");
+            e.printStackTrace();
             return null;
         }
     }
@@ -235,4 +239,25 @@ public class DatabaseOperator implements DBOperator {
             return null;
         }
     }
+
+	@Override
+	public void addFriendshipRequest(long senderId, String senderName,
+									long receiverId, String receiverName
+									, String msg, Date date
+	) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteFriendshipRequests(long userId1, long userId2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<FriendshipRequest> getFriendshipRequestsForUser(long userId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

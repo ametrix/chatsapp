@@ -1,5 +1,7 @@
 package server;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,6 +38,38 @@ public interface DBOperator {
 	 * @return true in success, false otherwise.
 	 */
 	public boolean addFriendship(long user_1_id, long user_2_id);
-        
-        public Map<Long, String> findUsers(String criteria);
+    
+	/**
+	 * Searches for users whose username contains the criteria parameter.
+	 * @param criteria
+	 * @return Map that contains the id and username of all the users whose username contains the criteria parameter
+	 */
+    public Map<Long, String> findUsers(String criteria);
+    
+    /**
+     * Add a request with the given parameters. If a request from the sender to the receiver 
+     * already exists the request parameters will be updated with the current parameters. 
+     * @param senderId
+     * @param senderName
+     * @param receiverID
+     * @param receiverName
+     * @param msg
+     */
+    public void addFriendshipRequest(long senderId, String senderName, long receiverId, String receiverName, String msg, Date date);
+
+    /**
+     * Delete a friendship requests with the given parameters. If there are two requests 
+     * one from user1 to user2 and one from user2 to user1 - then delete both.
+     * @param senderId
+     * @param receiverId
+     */
+    public void deleteFriendshipRequests(long userId1, long userId2);
+    
+    /**
+     * Searches for all requests where the receiver is the user whose id is passed as parameter.
+     * @param userId
+     * @return list of found requests.
+     */
+    public List<FriendshipRequest> getFriendshipRequestsForUser(long userId);
+    
 }

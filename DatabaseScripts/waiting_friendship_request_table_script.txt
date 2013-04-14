@@ -1,0 +1,11 @@
+delimiter $$
+
+CREATE TABLE `waiting_friendship_requests` (
+  `sender_id` bigint(20) NOT NULL,
+  `sender_user_name` varchar(60) NOT NULL,
+  `receiver_id` bigint(20) NOT NULL,
+  `receiver_user_name` varchar(60) NOT NULL,
+  `request_message` text NOT NULL,
+  `date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8$$
+

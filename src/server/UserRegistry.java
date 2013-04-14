@@ -6,8 +6,7 @@ package server;
 import java.util.Map;
 import java.util.TreeMap;
 
-
-import shared.SkypeStatus;
+import shared.message.StatusChagedCommandFactory;
 import shared.message.StatusChangedCommand;
 
 /**
@@ -37,9 +36,8 @@ public class UserRegistry {
 	public synchronized void deleteClient(ClientData client) {
 		ClientData cl = usersMap.remove(client.getId());
 		if(cl != null) {
-			StatusChangedCommand statusCommand = new StatusChangedCommand();
-			statusCommand.setUserId(cl.getId());
-			statusCommand.setNewStatus(SkypeStatus.OFFLINE.name());
+			
+			StatusChangedCommand statusCommand = StatusChagedCommandFactory.makeONToOFFCommand(cl.getId());
 			
 			Map<Long, String> friendsMap = dbOperator.getUserFriends(cl.getUsername(), cl.getPassword());
 			for(Long friendId : friendsMap.keySet()) {

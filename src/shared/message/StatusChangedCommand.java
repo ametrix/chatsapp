@@ -17,9 +17,9 @@ public class StatusChangedCommand implements CommandMessage{
 	private String newStatus = "";
 	
 	
-	public StatusChangedCommand() {	}
+	protected StatusChangedCommand() {	}
 	
-	public StatusChangedCommand(Long userId, String oldStatus,	String newStatus) {
+	protected StatusChangedCommand(Long userId, String oldStatus,	String newStatus) {
 		this.userId = userId;
 		this.oldStatus = oldStatus;
 		this.newStatus = newStatus;

@@ -1,7 +1,9 @@
 package server;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -72,8 +74,7 @@ public class DBImpl implements DBOperator{
 	@Override
 	public Map<Long, String> findUsers(String criteria) {
 		Map<Long, String> result = new HashMap<Long, String>();
-		Set<Long> friendSet = null;
-		
+
 		for(User u : users.values()) {
 			if(u.username.contains(criteria)) {
 				result.put(u.id, u.username);
@@ -83,6 +84,28 @@ public class DBImpl implements DBOperator{
 			return null;
 		}
 		return result;
+	}
+
+
+	@Override
+	public void addFriendshipRequest(long senderId, String senderName,
+			long receiverId, String receiverName, String msg, Date date) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void deleteFriendshipRequests(long userId1, long userId2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public List<FriendshipRequest> getFriendshipRequestsForUser(long userId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

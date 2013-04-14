@@ -14,7 +14,8 @@ public class Server {
 	public static int CLIENT_READ_TIMEOUT = 50*1000;
 	private static ServerSocket mServerSocket;
 	private static UserRegistry userRegistry;
-	private static DBOperator dbOperator = new DBImpl();
+	private static DBOperator dbOperator = new DatabaseOperator("jdbc:mysql://localhost/db", "pdimitrov", "pdimitrov");
+//	private static DBOperator dbOperator = new DBImpl();
 	
 	public static void main(String[] args) {
 		userRegistry = new UserRegistry(dbOperator);

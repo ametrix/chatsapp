@@ -15,7 +15,6 @@ import client.comunication.ConnectorImpl;
 import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 

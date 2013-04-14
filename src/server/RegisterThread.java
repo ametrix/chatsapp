@@ -8,16 +8,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.jws.soap.SOAPBinding.Use;
-
-
-import shared.SkypeStatus;
 import shared.message.LoginCommand;
 import shared.message.RegisterCommand;
+import shared.message.StatusChagedCommandFactory;
 import shared.message.StatusChangedCommand;
 
 /**
@@ -112,11 +108,13 @@ public class RegisterThread extends Thread{
 			ClientData friend = userRegistry.getClient(frId);
 			if(friend == null) continue;
 			// notify the logging in user for all his online friends
-			StatusChangedCommand stComm = new StatusChangedCommand(friend.getId(), SkypeStatus.OFFLINE.name(), SkypeStatus.ONLINE.name());
+			
+			StatusChangedCommand stComm = StatusChagedCommandFactory.makeOFFToONCommand(friend.getId());
 			loggingUser.getClientSender().sendMessage(stComm);
 			
 			//notify all the friends of the current logging in user that his is now online
-			StatusChangedCommand stComm2 = new StatusChangedCommand(loggingUser.getId(), SkypeStatus.OFFLINE.name(), SkypeStatus.ONLINE.name());
+			
+			StatusChangedCommand stComm2 = StatusChagedCommandFactory.makeOFFToONCommand(loggingUser.getId());
 			friend.getClientSender().sendMessage(stComm2);
 		}
 	}
