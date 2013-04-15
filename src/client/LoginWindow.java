@@ -52,6 +52,7 @@ public class LoginWindow extends JFrame {
 		
 		// initialize contentPane
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		contentPane.setBackground(FriendsListWindow.SECOND_COLOR);
 		setContentPane(contentPane);
 		SpringLayout sl_contentPane = new SpringLayout();
 		contentPane.setLayout(sl_contentPane);

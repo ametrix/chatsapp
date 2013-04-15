@@ -9,12 +9,17 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -35,6 +40,8 @@ import shared.message.FriendshipRequestCommand;
 @SuppressWarnings("serial")
 public class RequestsListWindow extends JFrame {
 
+//	private static final Color BACKGROUND = new Color(145, 239,254);
+	
 	private JPanel contentPane = new JPanel();
 	private JTextArea messageTextArea = new JTextArea();
 	private JList<String> requestslist;
@@ -48,8 +55,9 @@ public class RequestsListWindow extends JFrame {
 		
 		setTitle("PAPS Communicator 0.0.1");
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		setBounds(100, 100, 467, 353);
+		setBounds(100, 100, 367, 253);
 		contentPane.setLayout(new BorderLayout());
+		contentPane.setBackground(FriendsListWindow.BACKGROUND);
 		
 		JPanel requestsPanel = makeListPanel();
 		contentPane.add(requestsPanel, BorderLayout.CENTER);
@@ -59,7 +67,8 @@ public class RequestsListWindow extends JFrame {
 		requestsPanel.add(messageTextArea, BorderLayout.SOUTH);
 		
 		contentPane.add(makecontrolPanel(), BorderLayout.SOUTH);
-		requestslist = new JList<String>(new DefaultListModel<String>());  
+		requestslist = new JList<String>(new DefaultListModel<String>()); 
+		requestslist.setBackground(FriendsListWindow.SECOND_COLOR);
 		requestslist.setBorder(new LineBorder(new Color(0, 0, 0)));
 		requestslist.addListSelectionListener(new ListSelectionListener() {
 			@Override
@@ -81,16 +90,28 @@ public class RequestsListWindow extends JFrame {
 	}
 	private JPanel makeListPanel() {
 		TitledBorder title = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLUE), "People, who wants to be your friends");
-		JPanel chatPanel = new JPanel();
-		chatPanel.setBorder(title);
-		chatPanel.setLayout(new BorderLayout(5,5));
-		chatPanel.setPreferredSize(new Dimension(250,200));
-		return chatPanel;
+		JPanel listPanel = new JPanel();
+		listPanel.setBackground(FriendsListWindow.BACKGROUND);
+		listPanel.setBorder(title);
+		listPanel.setLayout(new BorderLayout(5,5));
+		listPanel.setPreferredSize(new Dimension(250,200));
+		return listPanel;
 	}
 	private JPanel makecontrolPanel() {
 		JPanel ctrPanel = new JPanel();
+		ctrPanel.setBackground(FriendsListWindow.BACKGROUND);
 		ctrPanel.setLayout(new FlowLayout());
-		JButton acceptButton = new JButton("Accept");
+		
+		BufferedImage acceptButtonIcon = null;
+		BufferedImage denyButtonIcon = null;
+		try {
+			acceptButtonIcon = ImageIO.read(new File("images/user-business-add-icon.png"));
+			denyButtonIcon = ImageIO.read(new File("images/user-business-close-icon.png"));
+		} catch (IOException e1) {  
+			e1.printStackTrace();
+		}
+		
+		JButton acceptButton = new JButton("Accept", new ImageIcon(acceptButtonIcon));
 		acceptButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -98,7 +119,7 @@ public class RequestsListWindow extends JFrame {
 			}
 		});
 		
-		JButton denyButton = new JButton("Deny");
+		JButton denyButton = new JButton("Deny", new ImageIcon(denyButtonIcon));
 		denyButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -106,8 +127,9 @@ public class RequestsListWindow extends JFrame {
 			}
 		});
 		
-		ctrPanel.add(denyButton);
 		ctrPanel.add(acceptButton);
+		ctrPanel.add(denyButton);
+		
 		return ctrPanel;
 	}
 	

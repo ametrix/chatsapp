@@ -3,13 +3,16 @@
  */
 package client;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.JButton;
@@ -20,12 +23,17 @@ import shared.message.FriendshipRequestCommand;
 
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.net.NetPermission;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -39,6 +47,8 @@ import java.util.Map.Entry;
 @SuppressWarnings("serial")
 public class SearchFriendsWindow  extends JFrame {
 
+//	private static final Color BACKGROUND = new Color(125, 158,254);
+	
 
 	private JPanel contentPane = new JPanel();
 	private JLabel criteriaLabel;
@@ -60,21 +70,23 @@ public class SearchFriendsWindow  extends JFrame {
 		setResizable(false);
 		setTitle("Welcome");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 277, 391);
+		setBounds(100, 100, 370, 391);
 		
 		setContentPane(contentPane);
-		contentPane.setLayout(new GridLayout(2,1));
+		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 			
 		contentPane.add(makeControllsPanel());
 		
-		JPanel friendsPanel = new JPanel();
-		friendsPanel.setLayout(new BorderLayout());
+		JPanel peoplePanel = new JPanel();
+		peoplePanel.setLayout(new BorderLayout());
 		
 		userslistModel = new DefaultListModel<Friend>();  
-		usersList = new JList<Friend>(userslistModel);  
-		contentPane.add(friendsPanel);
+		usersList = new JList<Friend>(userslistModel); 
+		usersList.setBackground(FriendsListWindow.SECOND_COLOR);
+		contentPane.add(peoplePanel);
 		
-		friendsPanel.add(usersList, BorderLayout.CENTER);
+		JScrollPane peopleListScrollbar = new JScrollPane(usersList);
+		peoplePanel.add(peopleListScrollbar, BorderLayout.CENTER);
 		
 		usersList.addMouseListener(new MouseAdapter() {
 			@Override
@@ -98,49 +110,43 @@ public class SearchFriendsWindow  extends JFrame {
 	}
 	
 	private JPanel makeControllsPanel() {
-	// initialize controllsPane
+		// initialize controllsPane
 		JPanel controllsPane = new JPanel();
 		controllsPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-	
-		SpringLayout sl_contentPane = new SpringLayout();
-		controllsPane.setLayout(sl_contentPane);
-		
-		// initialize header Label
-		JLabel lblPleaseEnterYour = new JLabel("Please enter your Name and password :");
-		sl_contentPane.putConstraint(SpringLayout.NORTH, lblPleaseEnterYour, 5, SpringLayout.NORTH, controllsPane);
-		sl_contentPane.putConstraint(SpringLayout.WEST, lblPleaseEnterYour, 5, SpringLayout.WEST, controllsPane);
-		controllsPane.add(lblPleaseEnterYour);
+		controllsPane.setBackground(FriendsListWindow.BACKGROUND);
+		controllsPane.setLayout(new FlowLayout(FlowLayout.CENTER));
 		
 		//add username label
 		criteriaLabel = new JLabel("User Name:");
-		sl_contentPane.putConstraint(SpringLayout.NORTH, criteriaLabel, 6, SpringLayout.SOUTH, lblPleaseEnterYour);
-		sl_contentPane.putConstraint(SpringLayout.WEST, criteriaLabel, 0, SpringLayout.WEST, lblPleaseEnterYour);
 		controllsPane.add(criteriaLabel);
 		//initialize username textbox
 		criteria = new JTextField();
-		sl_contentPane.putConstraint(SpringLayout.NORTH, criteria, 6, SpringLayout.SOUTH, lblPleaseEnterYour);
-		sl_contentPane.putConstraint(SpringLayout.WEST, criteria, 39, SpringLayout.EAST, criteriaLabel);
-		sl_contentPane.putConstraint(SpringLayout.EAST, criteria, -13, SpringLayout.EAST, controllsPane);
 		controllsPane.add(criteria);
 		criteria.setColumns(10);
 		
-		// initialize create button
-		JButton buttonSearch = new JButton("Search");
-		buttonSearch.addActionListener(makeSearchListener());
 		
-		// add create button
-		sl_contentPane.putConstraint(SpringLayout.WEST, buttonSearch, 0, SpringLayout.WEST, lblPleaseEnterYour);
-		sl_contentPane.putConstraint(SpringLayout.SOUTH, buttonSearch, -10, SpringLayout.SOUTH, controllsPane);
+		BufferedImage inviteButtonIcon = null;
+		BufferedImage searchButtonIcon = null;
+		try {
+			inviteButtonIcon = ImageIO.read(new File("images/user-business-add-icon.png"));
+			searchButtonIcon = ImageIO.read(new File("images/search-icon.png"));
+			
+		} catch (IOException e1) {  
+			e1.printStackTrace();
+		}
+		
+		// initialize and addcreate button
+		JButton buttonSearch = new JButton("Search", new ImageIcon(searchButtonIcon));
+		buttonSearch.setMargin(new Insets(0,0,0,1));
+		buttonSearch.setFont(new Font(Font.SERIF, Font.PLAIN, 13));
+		buttonSearch.addActionListener(makeSearchListener());
 		controllsPane.add(buttonSearch);
 		
-		// initialize login button
-		JButton buttonSend = new JButton("Send request");
+		// initialize and add login button
+		JButton buttonSend = new JButton("Invite", new ImageIcon(inviteButtonIcon));
+		buttonSend.setMargin(new Insets(0,0,0,1));
+		buttonSend.setFont(new Font(Font.SERIF, Font.PLAIN, 13));
 		buttonSend.addActionListener(makeSendListener());
-		//add login button
-		sl_contentPane.putConstraint(SpringLayout.NORTH, buttonSend, -35, SpringLayout.SOUTH, controllsPane);
-		sl_contentPane.putConstraint(SpringLayout.WEST, buttonSend, -129, SpringLayout.EAST, criteria);
-		sl_contentPane.putConstraint(SpringLayout.SOUTH, buttonSend, -10, SpringLayout.SOUTH, controllsPane);
-		sl_contentPane.putConstraint(SpringLayout.EAST, buttonSend, 0, SpringLayout.EAST, criteria);
 		controllsPane.add(buttonSend);
 		
 		return controllsPane;												

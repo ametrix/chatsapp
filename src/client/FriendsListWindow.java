@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -11,18 +13,24 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
@@ -38,6 +46,10 @@ import shared.message.TextMessage;
 @SuppressWarnings("serial")
 public class FriendsListWindow extends JFrame {
 
+//	public static final Color BACKGROUND = new Color(175, 113,30);
+	public static final Color BACKGROUND = new Color(113, 196,43);
+	public static final Color SECOND_COLOR = new Color(242,243,158);
+	
 	private final long id;
 	private final String userName;
 	private Map<Long, String> friends;
@@ -63,8 +75,9 @@ public class FriendsListWindow extends JFrame {
 		
 		setTitle("User:"+userName);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 217, 431);
+		setBounds(100, 100, 250, 431);
 		//initialize contentPane
+		contentPane.setBackground(BACKGROUND);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
@@ -74,18 +87,21 @@ public class FriendsListWindow extends JFrame {
 		
 		//add friends Panel
 		JPanel friendsPanel = new JPanel();
+		friendsPanel.setBackground(BACKGROUND);
 		TitledBorder title_1 = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLUE), "Friends:");
 		friendsPanel.setBorder(title_1);
 		friendsPanel.setLayout(new BorderLayout(5,5));
 		friendsPanel.setPreferredSize(new Dimension(200, 50));
 		friendslistModel = new DefaultListModel<Friend>();  
-		friendsList = new JList<Friend>(friendslistModel);  
+		friendsList = new JList<Friend>(friendslistModel); 
+		friendsList.setBackground(SECOND_COLOR);
 		contentPane.add(friendsPanel, BorderLayout.CENTER);
 		
 		// add the friends to the list
 		initFriendsList(friends);
 		
-		friendsPanel.add(friendsList, BorderLayout.CENTER);
+		JScrollPane friendsListScrollbar = new JScrollPane(friendsList);
+		friendsPanel.add(friendsListScrollbar, BorderLayout.CENTER);
 		
 		friendsList.addMouseListener(new MouseAdapter() {
 			@Override
@@ -109,8 +125,25 @@ public class FriendsListWindow extends JFrame {
 	
 	private JPanel makeControllPanel() {
 		JPanel ctrPanel = new JPanel();
+		ctrPanel.setBackground(BACKGROUND);
 		ctrPanel.setLayout(new FlowLayout());
-		JButton searchButton = new JButton("Find Friends");
+		ctrPanel.setSize(90, 65);
+		
+		BufferedImage searchButtonIcon = null;
+		BufferedImage showInvitationsButtonIcon = null;
+		try {
+			searchButtonIcon = ImageIO.read(new File("images/address-book-search-icon.png"));
+			showInvitationsButtonIcon = ImageIO.read(new File("images/comment-user-add-icon.png"));
+		} catch (IOException e1) {  
+			e1.printStackTrace();
+		}
+	
+		
+		JButton searchButton = new JButton("Search",new ImageIcon(searchButtonIcon));
+		searchButton.setMargin(new Insets(0,0,0,1));
+		searchButton.setFont(new Font(Font.SERIF, Font.PLAIN, 13));
+		searchButton.setToolTipText("Find people");
+		searchButton.setFocusable(false);
 		searchButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -119,15 +152,21 @@ public class FriendsListWindow extends JFrame {
 			}
 		});
 		
-		JButton showRequestsButton = new JButton("Show invitations");
-		showRequestsButton.addActionListener(new ActionListener() {
+		JButton showInvitationsButton = new JButton("Invitations", new ImageIcon(showInvitationsButtonIcon));
+		showInvitationsButton.setMargin(new Insets(0,0,0,1));
+		showInvitationsButton.setFont(new Font(Font.SERIF, Font.PLAIN, 13));
+		showInvitationsButton.setFocusable(false);
+		//	showInvitationsButton.setBorder(BorderFactory.createMatteBorder(5, 3, 5, 5, new Color(100,100,100)));
+		showInvitationsButton.setMaximumSize(new Dimension(30, 15));
+		showInvitationsButton.setToolTipText("Show invitations");
+		showInvitationsButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				requestsListWindow.setVisible(true);
 			}
 		});
 		
-		ctrPanel.add(showRequestsButton);
+		ctrPanel.add(showInvitationsButton);
 		ctrPanel.add(searchButton);
 		return ctrPanel;
 	}
@@ -146,7 +185,7 @@ public class FriendsListWindow extends JFrame {
 							friendsList.setModel(friendslistModel);
 							ChatWindow win = getActivChatWindow(friendId);
 							if(win != null) {
-								win.setWindowOnOffStyle(false);
+								win.setOnOffStyle(false);
 							}
 						}
 					} break;
@@ -159,7 +198,7 @@ public class FriendsListWindow extends JFrame {
 						//	listModel.addElement(entry);
 							ChatWindow win = getActivChatWindow(friendId);
 							if(win != null) {
-								win.setWindowOnOffStyle(true);
+								win.setOnOffStyle(true);
 							}
 						}
 					} break;
@@ -196,6 +235,7 @@ public class FriendsListWindow extends JFrame {
 
 		chatWindow.addWindowListener(makeChatWindowListener());
 		FriendsListWindow.this.chatWindows.add(chatWindow);
+		chatWindow.setOnOffStyle(selectionFromList.getStatus().equals(SkypeStatus.ONLINE));
 		chatWindow.setVisible(true);
 		return chatWindow;
 	}

@@ -83,10 +83,11 @@ public class ChatWindow extends JFrame {
 		
 		//west panel
 		JPanel chatPanel = makeChatPanel();
+		chatPanel.setBackground(FriendsListWindow.BACKGROUND);
 		contentPane.add(chatPanel, BorderLayout.CENTER);
 		
-	//	historyMsglistModel = new DefaultListModel<String>();  
 		historyMsglist = new JList<String>(new DefaultListModel<String>());  
+		historyMsglist.setBackground(FriendsListWindow.SECOND_COLOR);
 		historyMsglist.setBorder(new LineBorder(new Color(0, 0, 0)));
 		
 		JScrollPane historyMsglistScrollbar = new JScrollPane(historyMsglist);
@@ -162,6 +163,7 @@ public class ChatWindow extends JFrame {
 	
 	private void initContentPanel() {
 		contentPane = new JPanel();
+		contentPane.setBackground(FriendsListWindow.BACKGROUND);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(5, 5));
 		setContentPane(contentPane);
@@ -230,7 +232,7 @@ public class ChatWindow extends JFrame {
 		return friendId;
 	}
 
-	public void setWindowOnOffStyle(boolean online) {
+	public void setOnOffStyle(boolean online) {
 		if(online) { 
 			// if the friend is online now, but was offline before that clear the text 
 			setOnlineStyle(!inputTextArea.isEnabled());
