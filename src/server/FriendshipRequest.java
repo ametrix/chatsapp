@@ -5,6 +5,8 @@ package server;
 
 import java.util.Date;
 
+import shared.message.FriendshipRequestCommand;
+
 /**
  * @author PDimitrov
  *
@@ -61,4 +63,15 @@ public class FriendshipRequest {
 		return senderName;
 	}
 	
+	
+	public FriendshipRequestCommand asCommand() {
+		return new FriendshipRequestCommand(
+				senderId
+				, senderName
+				, receiverId
+				, receiverName
+				, message
+				, date
+		);
+	}
 }

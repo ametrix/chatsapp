@@ -17,7 +17,7 @@ public class FriendshipRequestCommand implements CommandMessage {
 	
 	public FriendshipRequestCommand() {}
 	
-	public FriendshipRequestCommand(Long receiverId, Long senderId, String message, Date date) {
+	public FriendshipRequestCommand(Long senderId, String senderName, Long receiverId, String receiverName, String message, Date date) {
 		super();
 		this.receiverId = receiverId;
 		this.senderId = senderId;

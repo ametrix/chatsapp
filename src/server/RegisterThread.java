@@ -99,6 +99,8 @@ public class RegisterThread extends Thread{
 			sendStatusCommands(client, friendsMap.keySet());
 			
 			userRegistry.addClient(client);
+			
+			sentWaitingFriendShipRequests(client);
 			System.out.println("UserRegistry.size="+userRegistry.getSize());
 		}
 		
@@ -116,6 +118,12 @@ public class RegisterThread extends Thread{
 			
 			StatusChangedCommand stComm2 = StatusChagedCommandFactory.makeOFFToONCommand(loggingUser.getId());
 			friend.getClientSender().sendMessage(stComm2);
+		}
+	}
+	
+	private void sentWaitingFriendShipRequests(ClientData client) {
+		for( FriendshipRequest req : dbOperator.getFriendshipRequestsForUser(client.getId())) {
+			client.getClientSender().sendMessage(req.asCommand());
 		}
 	}
 	

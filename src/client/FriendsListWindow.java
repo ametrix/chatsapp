@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.Enumeration;
@@ -26,9 +27,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
 import client.Connector.FriendsStatusListener;
+import client.Connector.FriendshipRequestListener;
 import client.Connector.IncomeMessageListener;
 
 import shared.SkypeStatus;
+import shared.message.FriendshipRequestCommand;
 import shared.message.TextMessage;
 
 
@@ -42,10 +45,9 @@ public class FriendsListWindow extends JFrame {
 	
 	private JPanel contentPane = new JPanel();
 	private JList<Friend> friendsList;
-//	private JPanel panel;
 	private DefaultListModel<Friend> friendslistModel;
 	private List<ChatWindow> chatWindows = new LinkedList<ChatWindow>();
-	
+	private RequestsListWindow requestsListWindow = new RequestsListWindow(connector);
 	/**
 	 * Create the frame.
 	 */
@@ -102,6 +104,7 @@ public class FriendsListWindow extends JFrame {
 		statusListenerProxy.setProxied(makeFriendsStatusListener());
 		statusListenerProxy.statusChange(-1L, SkypeStatus.ONLINE); // flush previous commands
 		this.connector.registerMessageListener(makeMessageListener());
+		this.connector.registerFriendshipRequestListener(makeFriendshipRequestListener());
 	}
 	
 	private JPanel makeControllPanel() {
@@ -115,6 +118,16 @@ public class FriendsListWindow extends JFrame {
 				win.setVisible(true);
 			}
 		});
+		
+		JButton showRequestsButton = new JButton("Show invitations");
+		showRequestsButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				requestsListWindow.setVisible(true);
+			}
+		});
+		
+		ctrPanel.add(showRequestsButton);
 		ctrPanel.add(searchButton);
 		return ctrPanel;
 	}
@@ -218,21 +231,22 @@ public class FriendsListWindow extends JFrame {
 		
 	}
 
+	private FriendshipRequestListener makeFriendshipRequestListener() {
+		return new FriendshipRequestListener() {
+			@Override
+			public void frendShipRequestReceived(FriendshipRequestCommand command) {
+				requestsListWindow.getFriendRequests().add(command);
+				requestsListWindow.refreshList();
+			}
+		};
+	}
 	
 	private WindowListener makeChatWindowListener() {
-		return new WindowListener() {
-			@Override	public void windowOpened(WindowEvent e) {}
-			@Override	public void windowIconified(WindowEvent e) {}
-			@Override	public void windowDeiconified(WindowEvent e) {}
-			@Override	public void windowDeactivated(WindowEvent e) {}
-			
+		return new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				chatWindows.remove((ChatWindow)e.getWindow());
 			}
-			
-			@Override	public void windowClosed(WindowEvent e) {}
-			@Override	public void windowActivated(WindowEvent e) {}
 		};
 	}
 }
