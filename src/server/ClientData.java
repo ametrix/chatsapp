@@ -76,6 +76,7 @@ public class ClientData {
 	public ClientData getClientFromDiscussions(Long id) {
 		return discussions.get(id);
 	}
+	
 	public void addClientToDiscussions(ClientData client) {
 		this.discussions.put(client.getId(), client);
 	}

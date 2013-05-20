@@ -10,8 +10,7 @@ import java.net.Socket;
 public class Server {
 
 	public static final int PORT = 2002;
-	public static String KEEP_ALIVE_MESSAGE = "!keep-alive";
-	public static int CLIENT_READ_TIMEOUT = 50*1000;
+	public static int CLIENT_READ_TIMEOUT = 60*1000;
 	private static ServerSocket mServerSocket;
 	private static UserRegistry userRegistry;
 	private static DBOperator dbOperator = new DatabaseOperator("jdbc:mysql://localhost/db", "pdimitrov", "pdimitrov");

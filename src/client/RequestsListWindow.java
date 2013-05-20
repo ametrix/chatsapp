@@ -53,7 +53,7 @@ public class RequestsListWindow extends JFrame {
 	public RequestsListWindow(Connector connector) {
 		this.connector = connector;
 		
-		setTitle("PAPS Communicator 0.0.1");
+		setTitle(FriendsListWindow.TITLE);
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		setBounds(100, 100, 367, 253);
 		contentPane.setLayout(new BorderLayout());

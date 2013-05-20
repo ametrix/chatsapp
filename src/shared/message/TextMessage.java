@@ -7,7 +7,7 @@ import java.util.Date;
  * This class represents a message between two participations it the chat.
  * @author PDimitrov
  */
-public class TextMessage implements Message {
+public class TextMessage implements ClientToClientMessage {
 
 	private static final long serialVersionUID = -527221660651199141L;
 	

@@ -9,16 +9,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import shared.message.Message;
-
 /**
- * @author gmt3
+ * @author PDimitrov
  */
 public class ClientConnection {
 
 	public static final String SERVER_HOSTNAME = "localhost";
-	public static String KEEP_ALIVE_MESSAGE = "!keep-alive";
-	public static final int TIMEOUT = 30000;
+	public static final int TIMEOUT = 60*1000;
 	public static final int SERVER_PORT = 2002;
 
 	private Socket socket;
@@ -57,9 +54,6 @@ public class ClientConnection {
 			e.printStackTrace();
 		}
 	}
-	
-//	public ObjectOutputStream getWriter() { return this.mSocketWriter; } 
-//	public ObjectInputStream getReader() { return this.mSocketReader; } 
 	
 	public void writeObject(Object msg) throws IOException {
 		synchronized (mSocketWriter) {

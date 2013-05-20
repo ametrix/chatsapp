@@ -39,6 +39,7 @@ import client.Connector.FriendshipRequestListener;
 import client.Connector.IncomeMessageListener;
 
 import shared.SkypeStatus;
+import shared.message.ClientToClientMessage;
 import shared.message.FriendshipRequestCommand;
 import shared.message.TextMessage;
 
@@ -46,6 +47,7 @@ import shared.message.TextMessage;
 @SuppressWarnings("serial")
 public class FriendsListWindow extends JFrame {
 
+	public static final String TITLE = "PAPS";
 //	public static final Color BACKGROUND = new Color(175, 113,30);
 	public static final Color BACKGROUND = new Color(113, 196,43);
 	public static final Color SECOND_COLOR = new Color(242,243,158);
@@ -73,7 +75,7 @@ public class FriendsListWindow extends JFrame {
 		friendsMap.remove(this.id); //remove the current user from the friendsMap so there are only his friends
 		this.friends = friendsMap;
 		
-		setTitle("User:"+userName);
+		setTitle(TITLE + "  user: "+userName);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 250, 431);
 		//initialize contentPane
@@ -258,7 +260,8 @@ public class FriendsListWindow extends JFrame {
 	private IncomeMessageListener makeMessageListener() {
 		return new IncomeMessageListener(){
 			@Override
-			public void massageReceived(TextMessage message) {
+			public void massageReceived(ClientToClientMessage message) {
+				
 				ChatWindow chatWin = getActivChatWindow(message.getSenderId());
 				if(chatWin == null) {
 					chatWin = openChatWindow(findListEntryById(message.getSenderId()));
@@ -266,9 +269,9 @@ public class FriendsListWindow extends JFrame {
 				if(chatWin != null) {
 					chatWin.receiveMessage(message);
 				}
+				
 			}
 		};
-		
 	}
 
 	private FriendshipRequestListener makeFriendshipRequestListener() {

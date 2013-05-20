@@ -2,12 +2,9 @@ package server;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.util.Vector;
 
+import shared.DefenceUtil;
 import shared.message.KeepAliveMessage;
 import shared.message.Message;
 
@@ -23,19 +20,15 @@ import shared.message.Message;
 public class ClientSender extends Thread {
 	
 	private Vector<Message> mMessageQueue = new Vector<Message>();
-//	private ServerDispatcher mServerDispatcher;
 	private ClientData mClient;
 	private ObjectOutputStream output;
 	private UserRegistry userRegistry;
 	
 	
 	public ClientSender(ClientData aClient, ObjectOutputStream out, UserRegistry userRegistry) throws IOException {
-		if(aClient == null || out == null || userRegistry == null) {
-			throw new IllegalArgumentException("The constructor arguments cant be Null!");
-		}
+		DefenceUtil.enshureArgsNotNull("The constructor arguments cant be Null!", aClient,out,userRegistry);
 		
 		mClient = aClient;
-//		mServerDispatcher = aServerDispatcher;
 		this.output = out;
 		this.userRegistry = userRegistry;
 	}
@@ -100,11 +93,8 @@ public class ClientSender extends Thread {
 				sendMessageToClient(message);
 			}
 		} catch (Exception e) {
-		// Commuication problem
+		// Communication problem
 		}
-		// Communication is broken. Interrupt both listener
-		// and sender threads
-	//	mClient.getClientListener().interrupt();
 		userRegistry.deleteClient(mClient); // removes this client, and interrupts his threads 
 	}
 	

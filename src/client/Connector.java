@@ -3,11 +3,13 @@ package client;
 import java.util.Map;
 
 import shared.SkypeStatus;
+import shared.message.ClientToClientMessage;
 import shared.message.FriendshipRequestCommand;
 import shared.message.TextMessage;
 
 /**
- * Connector making the connection between the UI module and the communication module on the client application.
+ * Connector making the connection between the UI module
+ *  and the communication module on the client application.
  * @author PDimitrov
  */
 public interface Connector {
@@ -22,11 +24,13 @@ public interface Connector {
 		 * This method will be called when new message is received.
 		 * @param message - the message
 		 */
-		public void massageReceived(TextMessage message);
+		public void massageReceived(ClientToClientMessage message);
 	}
 
+	
 	/**
-	 * Listener to be registered into the Connector to listen for changes of the status of the user's friends.
+	 * Listener to be registered into the Connector to listen for 
+	 * changes of the status of the user's friends.
 	 * @author PDimitrov
 	 */
 	public interface FriendsStatusListener {
@@ -37,11 +41,28 @@ public interface Connector {
 		public void statusChange(Long userId, SkypeStatus newStatus);
 	}
 	
+	/**
+	 * Callback to be used to perform some actions when an answer to request is received.
+	 * @author PDimitrov
+	 *
+	 * @param <ResultType>
+	 */
 	public interface ResultCallBack<ResultType> {
+		/**
+		 * This method will be called when an answer to request is received.
+		 */
 		public void resultReady(ResultType result);
 	}
 	
+	/**
+	 * Listener to be registered into the Connector to listen 
+	 * for invitations for friendship from other people.
+	 * @author PDimitrov
+	 */
 	public interface FriendshipRequestListener {
+		/**
+		 * This method will be called when invitation for friendship is received.
+		 */
 		public void frendShipRequestReceived(FriendshipRequestCommand command);
 	}
 	
@@ -64,7 +85,7 @@ public interface Connector {
 	 * Sends message.
 	 * @param message
 	 */
-	public void sendMessage(TextMessage message);
+	public void sendTextMessage(TextMessage message);
 	
 	
 	/**
@@ -102,7 +123,5 @@ public interface Connector {
 	 *  the ID of the user who will receive the request and a message for the receiver.
 	 */
 	public void sendFredshipRequest(FriendshipRequestCommand message);
-	
-	public void confirmFrendShip(Long senderId);
 	
 }

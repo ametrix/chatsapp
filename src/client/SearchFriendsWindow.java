@@ -68,7 +68,7 @@ public class SearchFriendsWindow  extends JFrame {
 		this.userName = name;
 		
 		setResizable(false);
-		setTitle("Welcome");
+		setTitle(FriendsListWindow.TITLE);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 370, 391);
 		

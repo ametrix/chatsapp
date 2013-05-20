@@ -4,7 +4,6 @@
 package client.comunication;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.net.SocketTimeoutException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,7 +12,9 @@ import java.util.Map;
 
 import client.Connector;
 
+import shared.message.ClientToClientMessage;
 import shared.message.CommandMessage;
+import shared.message.FileMessage;
 import shared.message.KeepAliveMessage;
 import shared.message.TextMessage;
 
@@ -32,7 +33,8 @@ public class ClientMessageReaderThred extends Thread {
 	private Map<Class<?>, CommandListener<?>> commandListeners = Collections.synchronizedMap(new HashMap<Class<?>, CommandListener<?>>());
 	
 	private ClientConnection clientConnection;
-	private Connector.IncomeMessageListener txtMessagelistener;
+	private Connector.IncomeMessageListener incomeClientMsglistener;
+	
 	
 	
 	public ClientMessageReaderThred(
@@ -40,7 +42,7 @@ public class ClientMessageReaderThred extends Thread {
 			, Connector.IncomeMessageListener txtMessagelistener
 	) {
 		this.clientConnection = clientConnection;
-		this.txtMessagelistener = txtMessagelistener;
+		this.incomeClientMsglistener = txtMessagelistener;
 	}
 	
 
@@ -53,6 +55,7 @@ public class ClientMessageReaderThred extends Thread {
 	* Until interrupted reads a text line from the reader
 	* and sends it to the writer.
 	*/
+	@SuppressWarnings("unchecked")
 	public void run() {
 		try {
 			while (!isInterrupted()) {
@@ -60,10 +63,14 @@ public class ClientMessageReaderThred extends Thread {
 					Object data = clientConnection.readObject();
 					if (data instanceof KeepAliveMessage) {
 						
-					} else if(data instanceof TextMessage) {
-						txtMessagelistener.massageReceived((TextMessage)data);
+					} else if(data instanceof ClientToClientMessage) {
+						incomeClientMsglistener.massageReceived((ClientToClientMessage)data);
+					} else if(data instanceof FileMessage) {
+						
 					} else if(data instanceof CommandMessage) {
 						System.out.println("ClientReaderThread: readCommand class:"+data.getClass());
+						
+						@SuppressWarnings("rawtypes")
 						CommandListener listener = commandListeners.get(data.getClass());
 						if(listener == null) {
 							continue;

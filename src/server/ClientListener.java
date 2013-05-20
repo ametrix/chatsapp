@@ -1,24 +1,19 @@
 package server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
-import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Map;
 
 import shared.DefenceUtil;
-import shared.SkypeStatus;
+import shared.message.ClientToClientMessage;
 import shared.message.FindUsersCommand;
 import shared.message.FriendshipRequestCommand;
 import shared.message.KeepAliveMessage;
 import shared.message.LogOutCommand;
 import shared.message.StatusChagedCommandFactory;
 import shared.message.StatusChangedCommand;
-import shared.message.TextMessage;
 
 
 
@@ -28,7 +23,6 @@ import shared.message.TextMessage;
 */
 public class ClientListener extends Thread {
 
-//	private ServerDispatcher mServerDispatcher;
 	private ClientData mClient;
 	private ObjectInputStream mSocketReader;
 	private DBOperator dbOperator;
@@ -40,8 +34,7 @@ public class ClientListener extends Thread {
 		);
 		
 		mClient = aClient;
-//		mServerDispatcher = aSrvDispatcher;
-		aClient.getSocket().setSoTimeout(Server.CLIENT_READ_TIMEOUT);
+		mClient.getSocket().setSoTimeout(Server.CLIENT_READ_TIMEOUT);
 		mSocketReader = in;
 		this.dbOperator = dbOperator;
 		this.userRegistry = userRegistry;
@@ -62,12 +55,8 @@ public class ClientListener extends Thread {
 					
 					if(message instanceof KeepAliveMessage) {
 						
-					} else if(message instanceof TextMessage) {
-						TextMessage txtMessage = (TextMessage)message;
-						ClientData client = findClient(txtMessage.getReceiverId());
-						if(client != null) {
-							client.getClientSender().sendMessage(txtMessage);
-						}
+					} else if(message instanceof ClientToClientMessage) {
+						handleClientToClientMessage((ClientToClientMessage)message);
 					
 					} else if(message instanceof FindUsersCommand) {
 						
@@ -80,8 +69,6 @@ public class ClientListener extends Thread {
 					} else if(message instanceof LogOutCommand) {
 						break;
 					}
-					
-				//	mServerDispatcher.dispatchMessage(mClient, message);
 				} catch (SocketTimeoutException ste) {
 					mClient.getClientSender().sendKeepAlive();
 				} catch (ClassNotFoundException e) {
@@ -99,6 +86,12 @@ public class ClientListener extends Thread {
 		handleLogoutCommand();
 	}
 	
+	private void handleClientToClientMessage(ClientToClientMessage ctcMessage) {
+		ClientData client = findClient(ctcMessage.getReceiverId());
+		if(client != null) {
+			client.getClientSender().sendMessage(ctcMessage);
+		}
+	}
 	
 	private void handleFriendshipCommand(FriendshipRequestCommand command) {
 		if(command.isAccepted()) {
@@ -106,6 +99,7 @@ public class ClientListener extends Thread {
 			// send status change commands
 			ClientData receiver = mClient; // if a user is accepted the request the current user is the receiver
 			ClientData sender = userRegistry.getClient(command.getSenderId());
+			
 			if(receiver != null) {// send status change to the receiver
 				StatusChangedCommand statusComm = sender != null 
 					? StatusChagedCommandFactory.makeOFFToONCommand(command.getSenderId())

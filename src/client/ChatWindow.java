@@ -1,51 +1,30 @@
 package client;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-//import java.awt.List;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.BorderFactory;
-//import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.border.LineBorder;
-import java.awt.Color;
-//import java.awt.FlowLayout;
 import javax.swing.JTextArea;
-//import javax.swing.AbstractListModel;
+import java.awt.Color;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.text.SimpleDateFormat;
-//import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
-
-import javax.swing.border.MatteBorder;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import javax.swing.JButton;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
+import shared.message.ClientToClientMessage;
+import shared.message.FileMessage;
 import shared.message.TextMessage;
 
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.awt.event.WindowStateListener;
 
 @SuppressWarnings("serial")
 public class ChatWindow extends JFrame {
@@ -70,7 +49,7 @@ public class ChatWindow extends JFrame {
 		this.friendName = selected_friend;
 		this.friendId = friendId;
 		
-		setTitle("PAPS Communicator 0.0.1");
+		setTitle(FriendsListWindow.TITLE);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 		
@@ -150,7 +129,7 @@ public class ChatWindow extends JFrame {
 		 Date date = new Date();
 		 message.setDate(date);
 		 // send the message
-		 con.sendMessage(message);
+		 con.sendTextMessage(message);
 		 
 		 return message;
 	}
@@ -168,34 +147,7 @@ public class ChatWindow extends JFrame {
 		contentPane.setLayout(new BorderLayout(5, 5));
 		setContentPane(contentPane);
 	}
-	
-	private void makeMenu() {
-		JMenuBar menuBar = new JMenuBar();
-		setJMenuBar(menuBar);
-		
-		JMenu mnNewMenu = new JMenu("File");
-		menuBar.add(mnNewMenu);
-		
-		JMenuItem mntmFil = new JMenuItem("Connect");
-		mnNewMenu.add(mntmFil);
-		
-		JMenuItem mntmExit = new JMenuItem("Exit");
-		mnNewMenu.add(mntmExit);
-		
-		JMenu mnHelp = new JMenu("Help");
-		menuBar.add(mnHelp);
-		
-		JMenuItem mntmAbout = new JMenuItem("About");
-		mntmAbout.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-			//default title and icon
-			JOptionPane.showMessageDialog(ChatWindow.this, "Eggs are not supposed to be green.");
-			}
-		});
-		mnHelp.add(mntmAbout);
-		
-	}
+
 	
 	//get system time
 	public String get_Time() {
@@ -253,7 +205,13 @@ public class ChatWindow extends JFrame {
 		inputTextArea.setEnabled(true);
 	}
 
-	public void receiveMessage(TextMessage msg) {
-		addMessageToHistoryList(friendName, msg);
+	public void receiveMessage(ClientToClientMessage msg) {
+		if(msg instanceof TextMessage) {
+			addMessageToHistoryList(friendName, (TextMessage)msg);
+		
+		} else if(msg instanceof FileMessage) {
+			
+		}
+		
 	}
 }

@@ -6,10 +6,12 @@ import java.util.Map;
 
 import shared.DefenceUtil;
 import shared.SkypeStatus;
+import shared.message.ClientToClientMessage;
 import shared.message.FindUsersCommand;
 import shared.message.FriendshipRequestCommand;
 import shared.message.LogOutCommand;
 import shared.message.LoginCommand;
+import shared.message.Message;
 import shared.message.RegisterCommand;
 import shared.message.StatusChangedCommand;
 import shared.message.TextMessage;
@@ -34,12 +36,20 @@ public class ConnectorImpl implements Connector {
 	
 	public ConnectorImpl(FriendsStatusListener statusListener) {
 		this.friendsStatusListener = statusListener;
-//		this.client = new ClientConnection();
 	}
+	
 
 	private void enshureNotNullConnection() {
 		if(clientConnection == null) {
 			throw new IllegalStateException("ClientConnection in null!");
+		}
+	}
+	private void sendMessage(Message message) {
+		enshureNotNullConnection();
+		try {
+			clientConnection.writeObject(message);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -62,16 +72,10 @@ public class ConnectorImpl implements Connector {
 
 	
 	@Override
-	public void sendMessage(TextMessage message) {
-		enshureNotNullConnection();
-		try {
-			clientConnection.writeObject(message);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public void sendTextMessage(TextMessage message) {
+		sendMessage(message);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Map<Long, String> login(String userName, String password) {
 		// On new try to login we destroy old connections and create new one
@@ -114,12 +118,13 @@ public class ConnectorImpl implements Connector {
 	private IncomeMessageListener makeMessageListenerProxy() {
 		return new IncomeMessageListener(){
 			@Override
-			public void massageReceived(TextMessage message) {
+			public void massageReceived(ClientToClientMessage message) {
 				if(ConnectorImpl.this.incomMsgListener != null) {
 					ConnectorImpl.this.incomMsgListener.massageReceived(message);
 				}
 			}
-			
+
+		
 		};
 	}
 	private CommandListener<FriendshipRequestCommand> makeFriendshipRequestListenerProxy() {
@@ -206,33 +211,20 @@ public class ConnectorImpl implements Connector {
 
 	@Override
 	public void sendFredshipRequest(FriendshipRequestCommand message) {
-		// TODO Auto-generated method stub
-		
+		sendMessage(message);
 	}
 
-	@Override
-	public void confirmFrendShip(Long senderId) {
-		// TODO Auto-generated method stub
-		
-	}
 	
 	public void closeConnection() {
 		this.clientConnection.closeConnection();
 	}
 	public void logOut() {
-		enshureNotNullConnection();
-		
 		try {
-			clientConnection.writeObject(new LogOutCommand());
+			sendMessage(new LogOutCommand());
 			clientConnection.closeConnection();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	
-
-	
-
-	
 }
