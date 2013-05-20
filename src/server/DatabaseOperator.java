@@ -9,6 +9,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -245,19 +246,83 @@ public class DatabaseOperator implements DBOperator {
 									long receiverId, String receiverName
 									, String msg, Date date
 	) {
-		// TODO Auto-generated method stub
-		
+           try {
+            Connection connection;
+            PreparedStatement preparedStatement;
+         
+
+            connection = DriverManager.getConnection(mConnectionUrl, mDBUser, mDBPassword);
+
+            preparedStatement = connection.prepareStatement("INSERT INTO db.waiting_friendship_requests values (?, ?, ?, ?, ?, ?)");
+
+            preparedStatement.setString(1, String.valueOf(senderId));
+            preparedStatement.setString(2, senderName);
+            preparedStatement.setString(3, String.valueOf(receiverId));
+            preparedStatement.setString(4, String.valueOf(receiverName));
+            preparedStatement.setString(5, msg);
+            preparedStatement.setString(3, String.valueOf(date));
+            
+            preparedStatement.executeUpdate();
+            
+            connection.close();
+           
+           }
+          catch (Exception e) {
+            System.out.println("Exception ocurred!");
+            }	
 	}
 
 	@Override
 	public void deleteFriendshipRequests(long userId1, long userId2) {
 		// TODO Auto-generated method stub
-		
+            
+            try {           
+            Connection connection;
+            Statement statement;
+           
+            connection = DriverManager.getConnection(mConnectionUrl, mDBUser, mDBPassword);
+                    
+            statement = connection.createStatement();
+            statement.executeQuery("DELETE FROM db.waiting_friendship_requests WHERE sender_id=" +
+                    userId1 + " AND receiver_id=" + userId2 );
+            
+            connection.close();
+            }
+             catch (Exception e) {
+            System.out.println("Exception ocurred!");
+            }	
 	}
 
 	@Override
 	public List<FriendshipRequest> getFriendshipRequestsForUser(long userId) {
-		// TODO Auto-generated method stub
-		return null;
+        try {           
+            Connection connection;
+            Statement statement;
+            ResultSet resultFromUsers;
+            List <FriendshipRequest> list = new ArrayList <>();
+            connection = DriverManager.getConnection(mConnectionUrl, mDBUser, mDBPassword);
+            
+            statement = connection.createStatement();
+            resultFromUsers = statement.executeQuery("SELECT * FROM db.db.waiting_friendship_requests WHERE receiver_id=" +
+                    userId);
+                        
+            if (!resultFromUsers.first())
+                return null;
+            
+            while(resultFromUsers.next()) {
+                FriendshipRequest request = new FriendshipRequest(resultFromUsers.getLong(3),
+                 resultFromUsers.getLong(1), resultFromUsers.getString(5), resultFromUsers.getDate(6));
+                               
+                list.add(request);
+            }
+            
+            connection.close();
+   
+            return list;
+            }
+             catch (Exception e) {
+            System.out.println("Exception ocurred!");
+            return null;
+            }	
 	}
 }
