@@ -15,21 +15,30 @@ public class FileMessage implements ClientToClientMessage {
 	private Long receiverId;
 	
 	private String fileName;
-	private int transferId;
+	private long transferId;
 	
 	private boolean last;
-	private boolean ask;
-	private boolean confirmed;
+	private FileMessageType type;
 	
 	private byte[] data;
+	private int bytesFilled;
 	
 	
-	public FileMessage(Long senderId, Long receiverId, int transferId, boolean last, byte[] data) {
+	public enum FileMessageType {
+		ASK
+		, CONFIRM
+		, CANCEL
+		, DATA
+	}
+	
+	
+	public FileMessage(Long senderId, Long receiverId, long transferId, FileMessageType type, byte[] data, int bytesFilled) {
 		this.senderId = senderId;
 		this.receiverId = receiverId;
 		this.transferId = transferId;
-		this.last = last;
+		this.type = type;
 		this.data = data;
+		this.bytesFilled = bytesFilled;
 	}
 
 	public Long getSenderId() {
@@ -72,7 +81,7 @@ public class FileMessage implements ClientToClientMessage {
 		this.data = data;
 	}
 
-	public int getTransferId() {
+	public long getTransferId() {
 		return transferId;
 	}
 
@@ -80,20 +89,17 @@ public class FileMessage implements ClientToClientMessage {
 		this.transferId = transferId;
 	}
 
-	public boolean isAsk() {
-		return ask;
+	public FileMessageType getType() {
+		return type;
 	}
 
-	public void setAsk(boolean ask) {
-		this.ask = ask;
+	public int getBytesFilled() {
+		return bytesFilled;
 	}
 
-	public boolean isConfirmed() {
-		return confirmed;
+	public void setBytesFilled(int bytesFilled) {
+		this.bytesFilled = bytesFilled;
 	}
 
-	public void setConfirmed(boolean confirmed) {
-		this.confirmed = confirmed;
-	}
 	
 }

@@ -14,7 +14,6 @@ import shared.message.LoginCommand;
 import shared.message.Message;
 import shared.message.RegisterCommand;
 import shared.message.StatusChangedCommand;
-import shared.message.TextMessage;
 
 import client.Connector;
 import client.comunication.ClientMessageReaderThred.CommandListener;
@@ -44,6 +43,7 @@ public class ConnectorImpl implements Connector {
 			throw new IllegalStateException("ClientConnection in null!");
 		}
 	}
+	
 	private void sendMessage(Message message) {
 		enshureNotNullConnection();
 		try {
@@ -72,7 +72,7 @@ public class ConnectorImpl implements Connector {
 
 	
 	@Override
-	public void sendTextMessage(TextMessage message) {
+	public void sendClientToClientMessage(ClientToClientMessage message) {
 		sendMessage(message);
 	}
 

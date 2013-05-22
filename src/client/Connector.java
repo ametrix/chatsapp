@@ -5,7 +5,6 @@ import java.util.Map;
 import shared.SkypeStatus;
 import shared.message.ClientToClientMessage;
 import shared.message.FriendshipRequestCommand;
-import shared.message.TextMessage;
 
 /**
  * Connector making the connection between the UI module
@@ -85,7 +84,7 @@ public interface Connector {
 	 * Sends message.
 	 * @param message
 	 */
-	public void sendTextMessage(TextMessage message);
+	public void sendClientToClientMessage(ClientToClientMessage message);
 	
 	
 	/**
