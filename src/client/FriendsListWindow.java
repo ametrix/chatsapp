@@ -41,7 +41,6 @@ import client.Connector.IncomeMessageListener;
 import shared.SkypeStatus;
 import shared.message.ClientToClientMessage;
 import shared.message.FriendshipRequestCommand;
-import shared.message.TextMessage;
 
 
 @SuppressWarnings("serial")
@@ -204,6 +203,8 @@ public class FriendsListWindow extends JFrame {
 							}
 						}
 					} break;
+					
+					default: break;
 				}
 			}
 		};
@@ -227,13 +228,8 @@ public class FriendsListWindow extends JFrame {
 			return null;
 		}
 		
-		ChatWindow chatWindow = new ChatWindow (
-					FriendsListWindow.this.connector
-				,   FriendsListWindow.this.userName
-				, 	FriendsListWindow.this.id
-				,	selectionFromList.getName()
-				,	selectionFromList.getId()
-		);
+		ChatInfo chatInfo = new ChatInfo(userName, id, selectionFromList.getName(), selectionFromList.getId());
+		ChatWindow chatWindow = new ChatWindow (connector, chatInfo);
 
 		chatWindow.addWindowListener(makeChatWindowListener());
 		FriendsListWindow.this.chatWindows.add(chatWindow);
@@ -243,7 +239,7 @@ public class FriendsListWindow extends JFrame {
 	}
 	private ChatWindow getActivChatWindow(Long friendId) {
 		for(ChatWindow win : chatWindows) { 
-			if(win.getFriendId().equals(friendId)) {
+			if(win.getChatInfo().getFriendId().equals(friendId)) {
 				return win;
 			}
 		}

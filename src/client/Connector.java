@@ -84,7 +84,7 @@ public interface Connector {
 	 * Sends message.
 	 * @param message
 	 */
-	public void sendClientToClientMessage(ClientToClientMessage message);
+	public void sendClientToClientMessage(ClientToClientMessage message, boolean resetSream);
 	
 	
 	/**

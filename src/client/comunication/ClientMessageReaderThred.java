@@ -81,7 +81,7 @@ public class ClientMessageReaderThred extends Thread {
 						listener.commandReceived(data);
 					}
 				} catch(SocketTimeoutException e) {
-					clientConnection.writeObject(new KeepAliveMessage());
+					clientConnection.writeObject(KeepAliveMessage.INSTANCE, false);
 				}
 			}
 		

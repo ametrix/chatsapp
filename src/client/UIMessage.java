@@ -6,7 +6,6 @@ package client;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.swing.DefaultListModel;
 
 /**
  * Represents a message shown in the chat window

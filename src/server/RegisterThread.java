@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import shared.DefenceUtil;
+import shared.MessageCounter;
 import shared.message.LoginCommand;
 import shared.message.RegisterCommand;
 import shared.message.StatusChagedCommandFactory;
@@ -27,10 +28,12 @@ public class RegisterThread extends Thread{
 	private Socket clientSocket;
 	private DBOperator dbOperator;
 	private UserRegistry userRegistry;
+	private MessageCounter msgCounter;
 	
-	public RegisterThread(Socket clientSocket, DBOperator dbOperator, UserRegistry userRegistry) {
-		DefenceUtil.enshureArgsNotNull("Arguments cant be Null!", clientSocket, dbOperator, userRegistry);
+	public RegisterThread(MessageCounter msgCounter, Socket clientSocket, DBOperator dbOperator, UserRegistry userRegistry) {
+		DefenceUtil.enshureArgsNotNull("Arguments cant be Null!", msgCounter, clientSocket, dbOperator, userRegistry);
 		
+		this.msgCounter = msgCounter;
 		this.dbOperator = dbOperator;
 		this.clientSocket = clientSocket;
 		this.userRegistry = userRegistry;
@@ -92,6 +95,7 @@ public class RegisterThread extends Thread{
 					, out
 					, dbOperator
 					, userRegistry
+					, msgCounter
 			);
 			logCom.getLoginResult().putAll(friendsMap);
 			out.writeObject(logCom);

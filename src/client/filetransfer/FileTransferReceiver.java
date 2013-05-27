@@ -5,6 +5,7 @@ package client.filetransfer;
 
 import static client.filetransfer.FileTransferStatus.*;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -20,11 +21,12 @@ import client.Connector;
  */
 public class FileTransferReceiver extends FileTransfer{
 
-	private FileOutputStream outputFileStream;
+	
+	private BufferedOutputStream outputFileStream;
 	
 	
-	public FileTransferReceiver(long id, Connector connector, long senderId, long receiverId) {
-		super(id, connector, senderId, receiverId);
+	public FileTransferReceiver(long id, Connector connector, long senderId, long receiverId, String originFileName) {
+		super(id, connector, senderId, receiverId, originFileName);
 	}
 
 	
@@ -38,7 +40,7 @@ public class FileTransferReceiver extends FileTransfer{
 		}
 		
 		try {
-			outputFileStream = new FileOutputStream(outputFile);
+			outputFileStream = new BufferedOutputStream(new FileOutputStream(outputFile));
 		} catch (FileNotFoundException e) {
 			setStatus(FAILED);
 			e.printStackTrace();
@@ -48,24 +50,28 @@ public class FileTransferReceiver extends FileTransfer{
 		setStatus(IN_PROCESS);
 		// 		the places of the sender and receiver ids are switched because the (file receiver) is the sender of this message
 		FileMessage msg = new FileMessage(getReceiverId(), getSenderId(), getTransferId(), FileMessage.FileMessageType.CONFIRM, null, 0);
-		getConnector().sendClientToClientMessage(msg);
+		getConnector().sendClientToClientMessage(msg, false);
 	}
 	
 	void receiveData(byte[] data, int filledBytes, boolean last) {
+	//	printReceived(data);
 		try {
 			if(filledBytes != 0 && filledBytes != data.length) {
 				outputFileStream.write(data, 0, filledBytes);
+				outputFileStream.flush();
 			}
 			else {
 				outputFileStream.write(data);
+				outputFileStream.flush();
 			}
 			
 			if(last) {
+				
 				// TODO notifi the chatwindow that the transefer is completed so it can be removed from fileTransfers
 				outputFileStream.flush();
 				outputFileStream.close();
 				setStatus(COMPLETED);
-				System.out.println("Transfer completed");
+				System.out.println("Last received Transfer completed");
 			}
 		} catch (IOException e) {
 			cancel(true);
@@ -89,7 +95,7 @@ public class FileTransferReceiver extends FileTransfer{
 		setStatus(FAILED);
 		if(sendMessage) {
 			FileMessage msg = new FileMessage(getSenderId(), getReceiverId(), getTransferId(), FileMessage.FileMessageType.CANCEL, null, 0);
-			getConnector().sendClientToClientMessage(msg);
+			getConnector().sendClientToClientMessage(msg, false);
 		}
 	}
 	
@@ -98,4 +104,11 @@ public class FileTransferReceiver extends FileTransfer{
 		getStatus().receiveMsg(msg, this);
 	}
 	
+	private void printReceived(byte[] array) {
+		System.out.print("Received [");
+		for(byte b : array)
+			System.out.print(b + ",");
+		
+		System.out.print("]");
+	}
 }

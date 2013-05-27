@@ -18,16 +18,18 @@ public abstract class FileTransfer {
 	private long transferId;
 	private long senderId;
 	private long receiverId;
+	private String originFileName;
 	private FileTransferStatus status;
 	private Connector connector;
 	
 	private List<TransferStatusChangedListener> statusListeners = new LinkedList<TransferStatusChangedListener>();
 	
-	public FileTransfer(long id, Connector connector, long senderId, long receiverId) {
+	public FileTransfer(long id, Connector connector, long senderId, long receiverId, String originFileName) {
 		this.transferId = id;
 		this.connector = connector;
 		this.senderId = senderId;
 		this.receiverId = receiverId;
+		this.originFileName = originFileName;
 		status = WAITING;
 	}
 	
@@ -50,10 +52,18 @@ public abstract class FileTransfer {
 	public FileTransferStatus getStatus() {
 		return status;
 	}
+	
+	public String getOriginFileName() {
+		return originFileName;
+	}
 
 	public void setStatus(FileTransferStatus status) {
-		FileTransferStatus old = this.status;
+		if(this.status == status) {
+			return;
+		}
+		
 		this.status = status;
+
 		for(TransferStatusChangedListener lis : statusListeners) {
 			lis.statusChanged(this);
 		}

@@ -5,6 +5,7 @@ import java.io.ObjectOutputStream;
 import java.util.Vector;
 
 import shared.DefenceUtil;
+import shared.MessageCounter;
 import shared.message.KeepAliveMessage;
 import shared.message.Message;
 
@@ -19,15 +20,17 @@ import shared.message.Message;
 */
 public class ClientSender extends Thread {
 	
+	//TODO replace the Vector with synchronized LinkedList for better performance
 	private Vector<Message> mMessageQueue = new Vector<Message>();
 	private ClientData mClient;
 	private ObjectOutputStream output;
 	private UserRegistry userRegistry;
+	private MessageCounter msgCounter;
 	
-	
-	public ClientSender(ClientData aClient, ObjectOutputStream out, UserRegistry userRegistry) throws IOException {
-		DefenceUtil.enshureArgsNotNull("The constructor arguments cant be Null!", aClient,out,userRegistry);
+	public ClientSender(MessageCounter msgCounter, ClientData aClient, ObjectOutputStream out, UserRegistry userRegistry) throws IOException {
+		DefenceUtil.enshureArgsNotNull("The constructor arguments cant be Null!" , msgCounter, aClient,out,userRegistry);
 		
+		this.msgCounter = msgCounter;
 		mClient = aClient;
 		this.output = out;
 		this.userRegistry = userRegistry;
@@ -41,7 +44,7 @@ public class ClientSender extends Thread {
 	* by other threads (ServerDispatcher).
 	*/
 	public synchronized void sendMessage(Message message) {
-		System.out.println("Sended msg to:"+mClient.getUsername()+"  type:"+message.getClass());
+	//	System.out.println("Sended msg to:"+mClient.getUsername()+"  type:"+message.getClass());
 		mMessageQueue.add(message);
 		notify();
 	}
@@ -52,7 +55,7 @@ public class ClientSender extends Thread {
 	* is inactive too long to prevent serving dead clients.
 	*/
 	public void sendKeepAlive() throws IOException{
-		sendMessage(new KeepAliveMessage());
+		sendMessage(KeepAliveMessage.INSTANCE);
 	}
 	
 	
@@ -65,8 +68,8 @@ public class ClientSender extends Thread {
 	private synchronized Message getNextMessageFromQueue() throws InterruptedException {
 		while (mMessageQueue.size()==0)
 			wait();
-		Message message = mMessageQueue.get(0);
-		mMessageQueue.removeElementAt(0);
+		
+		Message message = mMessageQueue.remove(0);
 		return message;
 	}
 	
@@ -91,6 +94,7 @@ public class ClientSender extends Thread {
 			while (!isInterrupted()) {
 				Message message = getNextMessageFromQueue();
 				sendMessageToClient(message);
+				msgCounter.messageWrited();
 			}
 		} catch (Exception e) {
 		// Communication problem

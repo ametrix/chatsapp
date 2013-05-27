@@ -9,6 +9,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import shared.MessageCounter;
+
 /**
  * @author PDimitrov
  */
@@ -21,6 +23,33 @@ public class ClientConnection {
 	private Socket socket;
 	private ObjectInputStream mSocketReader;
 	private ObjectOutputStream mSocketWriter;
+	
+	
+	private MessageCounter msgCounter = new MessageCounter(){
+		private static final long GS_AFTER_INTERACTIONS = 3000;
+		
+		private long msgInteractions;
+		
+		@Override
+		public synchronized void messageReaded() {
+			callGsIfNeeded();
+		}
+
+		@Override
+		public synchronized void messageWrited() {
+			callGsIfNeeded();
+		}
+		
+		private void callGsIfNeeded() {
+			msgInteractions++;
+			if(msgInteractions < GS_AFTER_INTERACTIONS) {
+				return;
+			}
+			System.gc();
+			msgInteractions = 0;
+		}
+	};
+	
 	
 	public ClientConnection() {
 		openConnection();
@@ -55,16 +84,24 @@ public class ClientConnection {
 		}
 	}
 	
-	public void writeObject(Object msg) throws IOException {
+	public void writeObject(Object msg, boolean resetStream) throws IOException {
 		synchronized (mSocketWriter) {
+			if(resetStream) {
+				mSocketWriter.reset();
+			}
 			this.mSocketWriter.writeObject(msg);
 			this.mSocketWriter.flush();
+			
+			msgCounter.messageWrited();
 		}
 	}
 	
 	public Object readObject() throws ClassNotFoundException, IOException {
 		synchronized (mSocketReader) {
+			msgCounter.messageReaded();
+			
 			return mSocketReader.readObject();
+			
 		}
 	}
 	

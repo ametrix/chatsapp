@@ -3,13 +3,15 @@
  */
 package shared.message;
 
+import java.io.IOException;
+
 
 /**
  * @author PDimitrov
  */
 public class FileMessage implements ClientToClientMessage {
 
-	private static final long serialVersionUID = 3172303575650676195L;
+	private static final long serialVersionUID = 1786087639098570208L;
 	
 	private Long senderId;
 	private Long receiverId;
@@ -36,6 +38,7 @@ public class FileMessage implements ClientToClientMessage {
 		this.senderId = senderId;
 		this.receiverId = receiverId;
 		this.transferId = transferId;
+		this.fileName = "";
 		this.type = type;
 		this.data = data;
 		this.bytesFilled = bytesFilled;
@@ -85,7 +88,7 @@ public class FileMessage implements ClientToClientMessage {
 		return transferId;
 	}
 
-	public void setTransferId(int transferId) {
+	public void setTransferId(long transferId) {
 		this.transferId = transferId;
 	}
 
@@ -100,6 +103,45 @@ public class FileMessage implements ClientToClientMessage {
 	public void setBytesFilled(int bytesFilled) {
 		this.bytesFilled = bytesFilled;
 	}
-
+/*
+	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+		out.writeBoolean(last);
+		out.writeLong(senderId);
+		out.writeLong(receiverId);
+		out.writeLong(transferId);
+		out.writeInt(bytesFilled);
+		out.writeInt(data.length);
+		for(int i=0; i<data.length; i++) {
+			out.writeByte(data[i]);
+		}
+		out.writeObject(type);
+		out.writeObject(fileName);
+	}
+	
+    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+    	last = in.readBoolean();
+    	senderId = in.readLong();
+    	receiverId = in.readLong();
+    	transferId = in.readLong();
+    	bytesFilled = in.readInt();
+    	int dataLength = in.readInt();
+    	data = new byte[dataLength];
+		for(int i=0; i<dataLength; i++) {
+			data[i] = in.readByte();
+		}
+		type = (FileMessageType)in.readObject();
+		fileName = (String)in.readObject();
+    }
+	*/
+	public void print() {
+		System.out.print("transferID: "+transferId);
+		System.out.print("  filed: "+bytesFilled);
+		System.out.print("  DATA [");
+		for(byte b : data) {
+			System.out.print(b + ",");
+		}
+		System.out.print("]");
+		System.out.println("  last:"+last);
+	}
 	
 }

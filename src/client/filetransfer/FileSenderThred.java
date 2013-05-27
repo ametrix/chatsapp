@@ -16,7 +16,7 @@ import shared.message.FileMessage;
  */
 public class FileSenderThred extends Thread{
 	
-	private static int CHUNK_SIZE = 1024;
+	private static int CHUNK_SIZE = 2048;
 	
 	private FileTransferSender transfer;
 	private FileInputStream inputStream;
@@ -46,26 +46,44 @@ public class FileSenderThred extends Thread{
 				return;
 			}
 			
+			byte[] bytes = new byte[CHUNK_SIZE];
+			FileMessage msg = new FileMessage(
+					transfer.getSenderId()
+					, transfer.getReceiverId()
+					, transfer.getTransferId()
+					, DATA
+					, bytes
+					, 0
+			 );
 			while (!isInterrupted()) {
-				byte[] bytes = new byte[CHUNK_SIZE];
 				int readed = inputStream.read(bytes);
-				FileMessage msg = new FileMessage(
-											transfer.getSenderId()
-											, transfer.getReceiverId()
-											, transfer.getTransferId()
-											, DATA
-											, bytes
-											, readed
-									  );
+			//	System.out.println("reded bytes: "); printArray(bytes);
+				msg.setBytesFilled(readed);
 				
 				if(readed < CHUNK_SIZE) {
 					msg.setLast(true);
 					interrupt();
+					System.out.println(" Last Sended ");
 				}
-				
-				transfer.getConnector().sendClientToClientMessage(msg);
-				transfer.completed();
+		//		System.out.print("Sended: "); msg.print();
+				transfer.getConnector().sendClientToClientMessage(msg, true);
+				if(readed < CHUNK_SIZE) {
+					transfer.completed();
+				}
 			}
 		} catch(Exception e) {}
+	}
+	
+	private void clearArray(byte[] array) {
+		for(int i=0; i<CHUNK_SIZE; i++) {
+			array[i] = 0;
+		}
+	}
+	private void printArray(byte[] array) {
+		System.out.print("[");
+		for(byte b : array)
+			System.out.print(b + ",");
+		
+		System.out.print("]");
 	}
 }

@@ -4,17 +4,42 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import shared.MessageCounter;
+
 
 
 
 public class Server {
+	
+	
 
 	public static final int PORT = 2002;
 	public static int CLIENT_READ_TIMEOUT = 60*1000;
 	private static ServerSocket mServerSocket;
 	private static UserRegistry userRegistry;
 	private static DBOperator dbOperator = new DatabaseOperator("jdbc:mysql://localhost/db", "pdimitrov", "pdimitrov");
-//	private static DBOperator dbOperator = new DBImpl();
+	
+	
+	private static MessageCounter msgCounter = new MessageCounter(){
+		private static final long GS_AFTER_WRITED = 2000;
+		
+		private long msgWrited;
+		
+		@Override
+		public synchronized void messageReaded() {
+		}
+
+		@Override
+		public synchronized void messageWrited() {
+			msgWrited++;
+			if(msgWrited < GS_AFTER_WRITED) {
+				return;
+			}
+			System.gc();
+			msgWrited = 0;
+		}
+	};
+	
 	
 	public static void main(String[] args) {
 		userRegistry = new UserRegistry(dbOperator);
@@ -42,7 +67,7 @@ public class Server {
 			try {
 				
 				Socket socket = mServerSocket.accept();
-				RegisterThread regThread = new RegisterThread(socket, dbOperator, userRegistry);
+				RegisterThread regThread = new RegisterThread(msgCounter, socket, dbOperator, userRegistry);
 				regThread.run();
 				System.out.println("RegisterThread run!");
 		

@@ -44,10 +44,11 @@ public class ConnectorImpl implements Connector {
 		}
 	}
 	
-	private void sendMessage(Message message) {
+	private void sendMessage(Message message, boolean resetStream) {
 		enshureNotNullConnection();
 		try {
-			clientConnection.writeObject(message);
+			
+			clientConnection.writeObject(message, resetStream);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -72,8 +73,8 @@ public class ConnectorImpl implements Connector {
 
 	
 	@Override
-	public void sendClientToClientMessage(ClientToClientMessage message) {
-		sendMessage(message);
+	public void sendClientToClientMessage(ClientToClientMessage message, boolean resetStream) {
+		sendMessage(message, resetStream);
 	}
 
 	@Override
@@ -89,7 +90,7 @@ public class ConnectorImpl implements Connector {
 		Map<Long, String> resMap = null;
 		
 		try {
-			conn.writeObject(loginCmd);
+			conn.writeObject(loginCmd, false);
 		
 			Object res = conn.readObject();
 			if(res instanceof LoginCommand) {
@@ -166,7 +167,7 @@ public class ConnectorImpl implements Connector {
 		
 		ClientConnection conn = new ClientConnection();
 		try {
-			conn.writeObject(regCmd);
+			conn.writeObject(regCmd, false);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -201,7 +202,7 @@ public class ConnectorImpl implements Connector {
 		};
 		try {
 			messageReaderThread.registerCommandListener(FindUsersCommand.class, callback);
-			clientConnection.writeObject(findComm);
+			clientConnection.writeObject(findComm, false);
 		} catch (IOException e) { e.printStackTrace(); } 
 		
 	}
@@ -211,7 +212,7 @@ public class ConnectorImpl implements Connector {
 
 	@Override
 	public void sendFredshipRequest(FriendshipRequestCommand message) {
-		sendMessage(message);
+		sendMessage(message, false);
 	}
 
 	
@@ -220,7 +221,7 @@ public class ConnectorImpl implements Connector {
 	}
 	public void logOut() {
 		try {
-			sendMessage(new LogOutCommand());
+			sendMessage(new LogOutCommand(), false);
 			clientConnection.closeConnection();
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -3,12 +3,12 @@ package server;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
 import shared.DefenceUtil;
+import shared.MessageCounter;
 
 
 
@@ -35,6 +35,7 @@ public class ClientData {
 					, ObjectOutputStream out
 					, DBOperator dbOperator
 					, UserRegistry userRegistry
+					, MessageCounter msgCounter
 	) throws IOException {
 		
 		DefenceUtil.enshureArgsNotNull("The constructor arguments cant be Null!"
@@ -46,8 +47,8 @@ public class ClientData {
 		this.username = username;
 		this.password = password;
 		this.socket = socket;
-		this.clientListener = new ClientListener(this, in, dbOperator, userRegistry);
-		this.clientSender = new ClientSender(this, out, userRegistry);
+		this.clientListener = new ClientListener(msgCounter, this, in, dbOperator, userRegistry);
+		this.clientSender = new ClientSender(msgCounter, this, out, userRegistry);
 		clientListener.start();
 		clientSender.start();
 	}

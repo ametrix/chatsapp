@@ -20,7 +20,7 @@ public class FileTransferSender extends FileTransfer {
 	private File file;
 	
 	public FileTransferSender(File file, long id, Connector connector, long senderId, long receiverId) {
-		super(id, connector, senderId, receiverId);
+		super(id, connector, senderId, receiverId, file.getName());
 		
 		if(file == null || !file.exists()) {
 			throw new RuntimeException("Not existing file to read from!");
@@ -50,7 +50,7 @@ public class FileTransferSender extends FileTransfer {
 		setStatus(FAILED);
 		if(sendMessage) {
 			FileMessage msg = new FileMessage(getSenderId(), getReceiverId(), getTransferId(), FileMessage.FileMessageType.CANCEL, null, 0);
-			getConnector().sendClientToClientMessage(msg);
+			getConnector().sendClientToClientMessage(msg, false);
 		}
 	}
 
@@ -60,7 +60,7 @@ public class FileTransferSender extends FileTransfer {
 	}
 
 	public void completed() {
-		// TODO
+		setStatus(COMPLETED);
 	}
 	
 }

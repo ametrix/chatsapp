@@ -7,6 +7,7 @@ import java.net.SocketTimeoutException;
 import java.util.Map;
 
 import shared.DefenceUtil;
+import shared.MessageCounter;
 import shared.message.ClientToClientMessage;
 import shared.message.FindUsersCommand;
 import shared.message.FriendshipRequestCommand;
@@ -27,12 +28,14 @@ public class ClientListener extends Thread {
 	private ObjectInputStream mSocketReader;
 	private DBOperator dbOperator;
 	private UserRegistry userRegistry;
+	private MessageCounter msgCounter;
 	
-	public ClientListener(ClientData aClient, ObjectInputStream in, DBOperator dbOperator, UserRegistry userRegistry) throws IOException {
+	public ClientListener(MessageCounter msgCounter, ClientData aClient, ObjectInputStream in, DBOperator dbOperator, UserRegistry userRegistry) throws IOException {
 		DefenceUtil.enshureArgsNotNull("The constructor arguments cant be Null!"
-				, aClient, in, dbOperator, userRegistry
+				,msgCounter , aClient, in, dbOperator, userRegistry
 		);
 		
+		this.msgCounter = msgCounter;
 		mClient = aClient;
 		mClient.getSocket().setSoTimeout(Server.CLIENT_READ_TIMEOUT);
 		mSocketReader = in;
@@ -50,8 +53,7 @@ public class ClientListener extends Thread {
 			while(!isInterrupted()) {
 				try {
 					Object message = mSocketReader.readObject();
-					System.out.println("ClientListener_readed:"+message.getClass());
-				
+					msgCounter.messageReaded();
 					
 					if(message instanceof KeepAliveMessage) {
 						
