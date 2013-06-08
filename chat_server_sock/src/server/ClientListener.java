@@ -16,6 +16,9 @@ import shared.message.LogOutCommand;
 import shared.message.StatusChagedCommandFactory;
 import shared.message.StatusChangedCommand;
 
+import common.server.DBOperator;
+import common.server.UserRegistry;
+
 
 
 /**
@@ -27,10 +30,10 @@ public class ClientListener extends Thread {
 	private ClientData mClient;
 	private ObjectInputStream mSocketReader;
 	private DBOperator dbOperator;
-	private UserRegistry userRegistry;
+	private UserRegistry<ClientData> userRegistry;
 	private MessageCounter msgCounter;
 	
-	public ClientListener(MessageCounter msgCounter, ClientData aClient, ObjectInputStream in, DBOperator dbOperator, UserRegistry userRegistry) throws IOException {
+	public ClientListener(MessageCounter msgCounter, ClientData aClient, ObjectInputStream in, DBOperator dbOperator, UserRegistry<ClientData> userRegistry) throws IOException {
 		DefenceUtil.enshureArgsNotNull("The constructor arguments cant be Null!"
 				,msgCounter , aClient, in, dbOperator, userRegistry
 		);
@@ -72,10 +75,10 @@ public class ClientListener extends Thread {
 						break;
 					}
 				} catch (SocketTimeoutException ste) {
-					mClient.getClientSender().sendKeepAlive();
+					mClient.addMsgForSending(KeepAliveMessage.INSTANCE);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
-					mClient.getClientSender().sendKeepAlive();
+					mClient.addMsgForSending(KeepAliveMessage.INSTANCE);
 				}
 			}
 		} catch (SocketException e) {
@@ -88,10 +91,11 @@ public class ClientListener extends Thread {
 		handleLogoutCommand();
 	}
 	
+	
 	private void handleClientToClientMessage(ClientToClientMessage ctcMessage) {
 		ClientData client = findClient(ctcMessage.getReceiverId());
 		if(client != null) {
-			client.getClientSender().sendMessage(ctcMessage);
+			client.addMsgForSending(ctcMessage);
 		}
 	}
 	
@@ -107,7 +111,7 @@ public class ClientListener extends Thread {
 					? StatusChagedCommandFactory.makeOFFToONCommand(command.getSenderId())
 					: StatusChagedCommandFactory.makeONToOFFCommand(command.getSenderId());
 				
-				receiver.getClientSender().sendMessage(statusComm);
+				receiver.addMsgForSending(statusComm);
 			}
 			
 			if(sender != null) {
@@ -115,7 +119,7 @@ public class ClientListener extends Thread {
 						? StatusChagedCommandFactory.makeOFFToONCommand(command.getReceiverId())
 						: StatusChagedCommandFactory.makeONToOFFCommand(command.getReceiverId());
 					
-				sender.getClientSender().sendMessage(statusComm);
+				sender.addMsgForSending(statusComm);
 			}
 		} else if(command.isDenied()) {
 			dbOperator.deleteFriendshipRequests(command.getSenderId(), command.getReceiverId());
@@ -131,7 +135,7 @@ public class ClientListener extends Thread {
 			// if the receiver is online send him the request
 			ClientData receiver = userRegistry.getClient(command.getReceiverId());
 			if(receiver != null) {
-				receiver.getClientSender().sendMessage(command);
+				receiver.addMsgForSending(command);
 			}
 		}
 	}
@@ -155,7 +159,7 @@ public class ClientListener extends Thread {
 		FindUsersCommand resultCommand = new FindUsersCommand();
 		resultCommand.setCriteria(findComm.getCriteria());
 		resultCommand.setFoundUsers(foundUsers);
-		mClient.getClientSender().sendMessage(resultCommand);
+		mClient.addMsgForSending(resultCommand);
 	}
 	
 	private void handleLogoutCommand() {

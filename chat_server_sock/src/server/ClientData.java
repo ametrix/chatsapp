@@ -9,6 +9,11 @@ import java.util.Map;
 
 import shared.DefenceUtil;
 import shared.MessageCounter;
+import shared.message.Message;
+
+import common.server.ClientHolder;
+import common.server.DBOperator;
+import common.server.UserRegistry;
 
 
 
@@ -16,10 +21,8 @@ import shared.MessageCounter;
 * Client class contains information about a client,
 * connected to the server.
 */
-public class ClientData {
-	private long id;
-	private String username;
-	private String password;
+public class ClientData extends ClientHolder {
+	
 	private Socket socket = null;
 	private ClientListener clientListener = null;
 	private ClientSender clientSender = null;
@@ -34,18 +37,16 @@ public class ClientData {
 					, ObjectInputStream in
 					, ObjectOutputStream out
 					, DBOperator dbOperator
-					, UserRegistry userRegistry
+					, UserRegistry<ClientData> userRegistry
 					, MessageCounter msgCounter
 	) throws IOException {
+		super(id, username, password);
 		
 		DefenceUtil.enshureArgsNotNull("The constructor arguments cant be Null!"
-				, id, username, password, socket, dbOperator, userRegistry
+				, socket, dbOperator, userRegistry
 		);
 		
 		
-		this.id = id;
-		this.username = username;
-		this.password = password;
 		this.socket = socket;
 		this.clientListener = new ClientListener(msgCounter, this, in, dbOperator, userRegistry);
 		this.clientSender = new ClientSender(msgCounter, this, out, userRegistry);
@@ -58,21 +59,6 @@ public class ClientData {
 		return socket;
 	}
 
-	public ClientListener getClientListener() {
-		return clientListener;
-	}
-
-	
-	public ClientSender getClientSender() {
-		return clientSender;
-	}
-
-	public long getId() {return id;}
-	
-	public String getUsername() {return username;}
-
-	public String getPassword() {return password;}
-
 
 	public ClientData getClientFromDiscussions(Long id) {
 		return discussions.get(id);
@@ -82,7 +68,8 @@ public class ClientData {
 		this.discussions.put(client.getId(), client);
 	}
 	
-	public void stop() {
+	@Override
+	public void destroy() {
 		clientListener.interrupt();
 		clientSender.interrupt();
 		try {
@@ -95,4 +82,18 @@ public class ClientData {
 		}
 		
 	}
+
+
+	@Override
+	public void addMsgForSending(Message msg) {
+		clientSender.sendMessage(msg);
+	}
+
+
+	@Override
+	public void handleReceivedMsg(Message msg) {
+		// This method will never be invoked, as the CLientListener thread is the one who 
+		// gets the receiver messages and handles them 
+	}
+
 }

@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/chat_common"/>
 	<classpathentry kind="lib" path="D:/Libraries/mysql_conector/mysql-connector-java-5.1.18-bin.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/chat_server_common"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

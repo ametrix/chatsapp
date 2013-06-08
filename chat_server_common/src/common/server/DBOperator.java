@@ -1,8 +1,10 @@
-package server;
+package common.server;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import shared.message.FriendshipRequest;
 
 /**
  * Knows how to interact with the database.

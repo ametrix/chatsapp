@@ -10,6 +10,7 @@ import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.JButton;
 
+import client.comunication.ConnectionType;
 import client.comunication.ConnectorImpl;
 
 import java.awt.Color;
@@ -42,7 +43,7 @@ public class LoginWindow extends JFrame {
 	 * Create the frame.
 	 */
 	public LoginWindow() {
-		con = new ConnectorImpl(statusListenerProxy);
+		con = new ConnectorImpl(statusListenerProxy, ConnectionType.HTTP);
 		
 		
 		setResizable(false);

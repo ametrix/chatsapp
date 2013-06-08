@@ -1,7 +1,7 @@
 /**
  * 
  */
-package server;
+package shared.message;
 
 import java.util.Date;
 

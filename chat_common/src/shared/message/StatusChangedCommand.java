@@ -5,10 +5,11 @@ package shared.message;
 
 
 /**
+ * Sent only from the server.
+ * Clients can not send this command.
  * @author PDimitrov
- *
  */
-public class StatusChangedCommand implements CommandMessage{
+public class StatusChangedCommand implements CommandMessage {
 
 	private static final long serialVersionUID = 4254711115136986698L;
 
@@ -42,6 +43,11 @@ public class StatusChangedCommand implements CommandMessage{
 	}
 	public void setNewStatus(String newStatus) {
 		this.newStatus = newStatus;
+	}
+
+	@Override
+	public Long getSenderId() {
+		return null;
 	}
 	
 }

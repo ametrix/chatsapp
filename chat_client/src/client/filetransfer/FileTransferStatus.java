@@ -74,6 +74,6 @@ public enum FileTransferStatus {
 	 * if not overridden - means in that state can't be received any messages
 	 */
 	public void receiveMsg(FileMessage msg, FileTransferReceiver transfer) {
-		throw new RuntimeException("FileMessage of type:"+msg.getType()+" received durring state:"+this.name());
+	//	throw new RuntimeException("FileMessage of type:"+msg.getType()+" received durring state:"+this.name());
 	}
 }

@@ -33,4 +33,9 @@ public class RegisterCommand implements CommandMessage {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
+	@Override
+	public Long getSenderId() {
+		return null;
+	}
 }

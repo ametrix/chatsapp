@@ -14,10 +14,14 @@ import java.util.Map.Entry;
 
 import shared.DefenceUtil;
 import shared.MessageCounter;
+import shared.message.FriendshipRequest;
 import shared.message.LoginCommand;
 import shared.message.RegisterCommand;
 import shared.message.StatusChagedCommandFactory;
 import shared.message.StatusChangedCommand;
+
+import common.server.DBOperator;
+import common.server.UserRegistry;
 
 /**
  * @author PDimitrov
@@ -27,10 +31,10 @@ public class RegisterThread extends Thread{
 	
 	private Socket clientSocket;
 	private DBOperator dbOperator;
-	private UserRegistry userRegistry;
+	private UserRegistry<ClientData> userRegistry;
 	private MessageCounter msgCounter;
 	
-	public RegisterThread(MessageCounter msgCounter, Socket clientSocket, DBOperator dbOperator, UserRegistry userRegistry) {
+	public RegisterThread(MessageCounter msgCounter, Socket clientSocket, DBOperator dbOperator, UserRegistry<ClientData> userRegistry) {
 		DefenceUtil.enshureArgsNotNull("Arguments cant be Null!", msgCounter, clientSocket, dbOperator, userRegistry);
 		
 		this.msgCounter = msgCounter;
@@ -56,6 +60,10 @@ public class RegisterThread extends Thread{
 					handleLogin((LoginCommand)obj, in, out);
 					
 				}
+				else {
+					handleUsingClientListener(obj, out);
+				}
+				
 				out.flush();
 				
 			}
@@ -66,6 +74,11 @@ public class RegisterThread extends Thread{
 		} 
 	}
 	
+	private void handleUsingClientListener(Object obj, ObjectOutputStream out) {
+		
+	}
+
+
 	private void handleRegistering(RegisterCommand regCom, ObjectOutputStream out) throws IOException {
 		Boolean regSuccess = dbOperator.registerNewUser(regCom.getUserName(), regCom.getPassword());
 		out.writeObject(regSuccess);
@@ -76,7 +89,7 @@ public class RegisterThread extends Thread{
 		Map<Long, String> friendsMap = dbOperator.getUserFriends(logCom.getUserName(), logCom.getPassword());
 		
 
-		if(friendsMap == null) { // in login is not successful
+		if(friendsMap == null) { // if login is not successful
 			System.out.println("Unsuccessful login=");
 			logCom.getLoginResult().clear();
 			out.writeObject(logCom);
@@ -117,11 +130,11 @@ public class RegisterThread extends Thread{
 			
 			// notify the logging in user for all his online friends
 			StatusChangedCommand stComm = StatusChagedCommandFactory.makeOFFToONCommand(friend.getId());
-			loggingUser.getClientSender().sendMessage(stComm);
+			loggingUser.addMsgForSending(stComm);
 			
 			//notify all the friends of the current logging in user that his is now online
 			StatusChangedCommand stComm2 = StatusChagedCommandFactory.makeOFFToONCommand(loggingUser.getId());
-			friend.getClientSender().sendMessage(stComm2);
+			friend.addMsgForSending(stComm2);
 		}
 	}
 	
@@ -132,7 +145,7 @@ public class RegisterThread extends Thread{
 		}
 		
 		for( FriendshipRequest req : reqList) {
-			client.getClientSender().sendMessage(req.asCommand());
+			client.addMsgForSending(req.asCommand());
 		}
 	}
 	

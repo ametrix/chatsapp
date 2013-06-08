@@ -4,6 +4,7 @@
 	<comment></comment>
 	<projects>
 		<project>chat_common</project>
+		<project>chat_server_common</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

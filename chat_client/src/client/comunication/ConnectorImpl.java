@@ -2,6 +2,7 @@ package client.comunication;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Map.Entry;
 
 
 import shared.DefenceUtil;
@@ -16,7 +17,7 @@ import shared.message.RegisterCommand;
 import shared.message.StatusChangedCommand;
 
 import client.Connector;
-import client.comunication.ClientMessageReaderThred.CommandListener;
+import client.comunication.MessageReader.CommandListener;
 
 /**
  * Implementation of the Connector Interface to be used by the client application.
@@ -27,14 +28,17 @@ public class ConnectorImpl implements Connector {
 	
 	private ClientConnection clientConnection = null;
 	
-	private ClientMessageReaderThred messageReaderThread = null;
+	private MessageReader messageReaderThread = null;
 
 	private IncomeMessageListener incomMsgListener = null;
 	private FriendsStatusListener friendsStatusListener = null;
 	private FriendshipRequestListener friendshipRequestListener = null;
 	
-	public ConnectorImpl(FriendsStatusListener statusListener) {
+	private ConnectionType connectionType;
+	
+	public ConnectorImpl(FriendsStatusListener statusListener, ConnectionType connectionType) {
 		this.friendsStatusListener = statusListener;
+		this.connectionType = connectionType;
 	}
 	
 
@@ -86,20 +90,21 @@ public class ConnectorImpl implements Connector {
 		}
 		
 		LoginCommand loginCmd = new LoginCommand(userName, password);
-		ClientConnection conn = new ClientConnection();
+		ClientConnection conn = ConnectionFactory.makeConnection(connectionType);
+		
 		Map<Long, String> resMap = null;
 		
 		try {
-			conn.writeObject(loginCmd, false);
-		
-			Object res = conn.readObject();
+			Object res = conn.writeRead(loginCmd, false);
+			
 			if(res instanceof LoginCommand) {
 				resMap = ((LoginCommand)res).getLoginResult();
 				// If the login is successful keep this connection to be used for communication
 				if(!resMap.isEmpty()) {
+					long userId =  findId(((LoginCommand) res).getUserName(), resMap);
 					clientConnection = conn;
 					IncomeMessageListener proxy = makeMessageListenerProxy();
-					messageReaderThread = new ClientMessageReaderThred(clientConnection, proxy);
+					messageReaderThread = clientConnection.makeMessageReader(proxy, userId); 
 					messageReaderThread.registerCommandListener(FriendshipRequestCommand.class, makeFriendshipRequestListenerProxy());
 					messageReaderThread.registerCommandListener(StatusChangedCommand.class, makeStatusListenerProxy());
 					messageReaderThread.start();
@@ -165,19 +170,13 @@ public class ConnectorImpl implements Connector {
 	public boolean createNewProfile(String userName, String password) {
 		RegisterCommand regCmd = new RegisterCommand(userName, password);
 		
-		ClientConnection conn = new ClientConnection();
-		try {
-			conn.writeObject(regCmd, false);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		
+		ClientConnection conn = ConnectionFactory.makeConnection(connectionType);
 		Object serverAnswer = false;
 		try {
-			serverAnswer = conn.readObject();	
+			serverAnswer = conn.writeRead(regCmd, false);
 			conn.closeConnection();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -228,4 +227,13 @@ public class ConnectorImpl implements Connector {
 		}
 	}
 
+	
+	private Long findId(String name, Map<Long,String> frMap) {
+		for(Entry<Long, String> entry : frMap.entrySet()) {
+			if(entry.getValue().equals(name)) {
+				return entry.getKey();
+			}
+		}
+		return null;
+	}
 }

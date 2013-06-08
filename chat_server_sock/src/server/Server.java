@@ -6,17 +6,20 @@ import java.net.Socket;
 
 import shared.MessageCounter;
 
+import common.server.DBOperator;
+import common.server.DatabaseOperator;
+import common.server.UserRegistry;
+
 
 
 
 public class Server {
 	
-	
-
 	public static final int PORT = 2002;
-	public static int CLIENT_READ_TIMEOUT = 60*1000;
+	public static final int CLIENT_READ_TIMEOUT = 60*1000;
+	
 	private static ServerSocket mServerSocket;
-	private static UserRegistry userRegistry;
+	private static UserRegistry<ClientData> userRegistry;
 	private static DBOperator dbOperator = new DatabaseOperator("jdbc:mysql://localhost/db", "pdimitrov", "pdimitrov");
 	
 	
@@ -42,7 +45,7 @@ public class Server {
 	
 	
 	public static void main(String[] args) {
-		userRegistry = new UserRegistry(dbOperator);
+		userRegistry = new UserRegistry<ClientData>(dbOperator);
 		
 		// Start listening on the server socket
 		bindServerSocket();

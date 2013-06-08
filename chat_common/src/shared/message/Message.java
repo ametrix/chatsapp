@@ -6,5 +6,5 @@ import java.io.Serializable;
  * @author PDimitrov
  */
 public interface Message extends Serializable {
-
+	public Long getSenderId();
 }

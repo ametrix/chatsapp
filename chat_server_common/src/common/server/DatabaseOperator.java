@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package server;
+package common.server;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import shared.message.FriendshipRequest;
+
 /**
  *
  * @author Ahmed Karasan
@@ -26,15 +28,20 @@ public class DatabaseOperator implements DBOperator {
     private String mDBPassword;
 
     public DatabaseOperator() {
-        mConnectionUrl = "jdbc:mysql://localhost/mysql";
-        mDBUser = "root";
-        mDBPassword = "";
+    	this("jdbc:mysql://localhost/mysql", "root", "");
     }
 
     public DatabaseOperator(String url, String user, String passw) {
         mConnectionUrl = url;
         mDBUser = user;
         mDBPassword = passw;
+        
+        try{
+            Class.forName("com.mysql.jdbc.Driver");
+        }
+        catch(java.lang.ClassNotFoundException cnfe){
+            System.out.println("Class Not Found - " + cnfe.getMessage());
+        }      
     }
 
     @Override

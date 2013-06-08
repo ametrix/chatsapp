@@ -6,8 +6,9 @@ import java.util.Vector;
 
 import shared.DefenceUtil;
 import shared.MessageCounter;
-import shared.message.KeepAliveMessage;
 import shared.message.Message;
+
+import common.server.UserRegistry;
 
 
 
@@ -18,16 +19,16 @@ import shared.message.Message;
 * in the queue. When the queue is not empty, ClientSender
 * sends the messages from the queue to the client socket.
 */
-public class ClientSender extends Thread {
+public class ClientSender extends Thread  {
 	
 	//TODO replace the Vector with synchronized LinkedList for better performance
 	private Vector<Message> mMessageQueue = new Vector<Message>();
 	private ClientData mClient;
 	private ObjectOutputStream output;
-	private UserRegistry userRegistry;
+	private UserRegistry<ClientData> userRegistry;
 	private MessageCounter msgCounter;
 	
-	public ClientSender(MessageCounter msgCounter, ClientData aClient, ObjectOutputStream out, UserRegistry userRegistry) throws IOException {
+	public ClientSender(MessageCounter msgCounter, ClientData aClient, ObjectOutputStream out, UserRegistry<ClientData> userRegistry) throws IOException {
 		DefenceUtil.enshureArgsNotNull("The constructor arguments cant be Null!" , msgCounter, aClient,out,userRegistry);
 		
 		this.msgCounter = msgCounter;
@@ -44,20 +45,10 @@ public class ClientSender extends Thread {
 	* by other threads (ServerDispatcher).
 	*/
 	public synchronized void sendMessage(Message message) {
-	//	System.out.println("Sended msg to:"+mClient.getUsername()+"  type:"+message.getClass());
+		System.out.println("Sended msg to:"+mClient.getUsername()+"  type:"+message.getClass());
 		mMessageQueue.add(message);
 		notify();
 	}
-	
-	/**
-	* Sends a keep-alive message to the client to check if
-	* it is still alive. This method is called when the client
-	* is inactive too long to prevent serving dead clients.
-	*/
-	public void sendKeepAlive() throws IOException{
-		sendMessage(KeepAliveMessage.INSTANCE);
-	}
-	
 	
 	
 	/**
@@ -80,6 +71,7 @@ public class ClientSender extends Thread {
 		try {
 			output.writeObject(aMessage);
 			output.flush();
+			System.out.println("Sended to:"+mClient.getUsername()+"  type:"+aMessage.getClass());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

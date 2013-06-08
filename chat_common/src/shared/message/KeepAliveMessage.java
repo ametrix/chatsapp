@@ -15,5 +15,17 @@ public class KeepAliveMessage implements CommandMessage {
 	
 	public final String message = "keepAlive!";
 	
-	private KeepAliveMessage() {}
+	
+	private Long senderId;
+	public KeepAliveMessage() {}
+
+	@Override
+	public Long getSenderId() {
+		return senderId;
+	}
+
+	public void setSenderId(Long senderId) {
+		this.senderId = senderId;
+	}
+	
 }

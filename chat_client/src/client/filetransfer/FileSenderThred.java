@@ -46,16 +46,18 @@ public class FileSenderThred extends Thread{
 				return;
 			}
 			
-			byte[] bytes = new byte[CHUNK_SIZE];
-			FileMessage msg = new FileMessage(
-					transfer.getSenderId()
-					, transfer.getReceiverId()
-					, transfer.getTransferId()
-					, DATA
-					, bytes
-					, 0
-			 );
+			
+			
 			while (!isInterrupted()) {
+				byte[] bytes = new byte[CHUNK_SIZE];
+				FileMessage msg = new FileMessage(
+						transfer.getSenderId()
+						, transfer.getReceiverId()
+						, transfer.getTransferId()
+						, DATA
+						, bytes
+						, 0
+				);
 				int readed = inputStream.read(bytes);
 			//	System.out.println("reded bytes: "); printArray(bytes);
 				msg.setBytesFilled(readed);

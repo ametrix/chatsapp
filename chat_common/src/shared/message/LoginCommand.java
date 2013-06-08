@@ -43,5 +43,10 @@ public class LoginCommand implements CommandMessage {
 		return loginResult;
 	}
 
+	@Override
+	public Long getSenderId() {
+		return null;
+	}
+
 	
 }
